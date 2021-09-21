@@ -21,6 +21,8 @@ for i = 1:6
     samp_100(1, i) = mean;
     samp_100(2, i) = var;
 end
+samp_10
+samp_100
 %% part B
 figure(1)
 boxplot(matrix, labels)
@@ -157,12 +159,6 @@ function value = labels
 %     g6 = repmat({value(6)},30,1);
 %     value = [g1; g2; g3; g4; g5; g6];
 end
-
-function value = axis_length
-    value = 100;
-end
-
-
 
 function x=randht(n, varargin)
     % RANDHT generates n observations distributed as some continous heavy-
