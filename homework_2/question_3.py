@@ -19,6 +19,8 @@ def read_file():
             us_car.append(int(tokens[0]))
         if tokens[1] is not '':
             jap_car.append(int(tokens[1]))
+    
+    f.close()
 
 read_file()
 print('japanese cars:', len(jap_car))

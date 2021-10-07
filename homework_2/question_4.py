@@ -11,7 +11,6 @@ def read_file():
         file = f.readlines()
 
     for line in file:
-        # US, JAP
         newline = line.strip('\n')
         tokens = newline.split(',')
         v = float(tokens[0])
@@ -19,6 +18,8 @@ def read_file():
         if batch not in batch_map:
             batch_map[batch] = []
         batch_map[batch].append(v)
+
+    f.close()
 
 read_file()
 
