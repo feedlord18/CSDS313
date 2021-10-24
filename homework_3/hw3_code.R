@@ -5,12 +5,14 @@ install.packages("qqman")
 install.packages("BiocManager")
 install.packages("lsa")
 install.packages("ggplot2")
+install.packages("gtools")
 BiocManager::install("qvalue")
 library("ReIns")
 library("qqman")
 library("qvalue")
 library("lsa")
 library("ggplot2")
+library("gtools")
 ## Question 1
 qqnorm(movie_votes$AverageVote)
 ExpQQ(airport_routes$NumberOfRoutes, plot=TRUE, main="Exponential QQ-plot")
@@ -53,7 +55,27 @@ qobj <- qvalue(p=rpbs$'p-value')
 which(qobj$'qvalues' < 0.1)
 length(which(qobj$'qvalues' < 0.1))
 # d)
-
+# permute 1000 times
+perm_y = m1[, 1001]
+for (i in 1:10000) {
+  perm_y = gtools::permute(perm_y)
+}
+perm_rpbs = matrix(nrow=1000, ncol=4)
+for (col in 1:1000) {
+  temp_x = m1[,col]
+  # calculate pearson correlation
+  perm_rpbs[col, 1] <- cor.test(temp_x, perm_y)$p.value
+  perm_rpbs[col, 2] <- col
+  perm_rpbs[col, 3] <- col
+  perm_rpbs[col, 4] <- col
+}
+perm_rpbs <- as.data.frame(perm_rpbs)
+colnames(perm_rpbs) <- c(c('p-value', 'x', 'bp', 'snp'))
+which(perm_rpbs$'p-value' < 0.01)
+length(which(rpbs$'p-value' < 0.01))
+which(perm_rpbs$'p-value' < (0.001))
+length(which(perm_rpbs$'p-value' < (0.001)))
+hist(perm_rpbs$`p-value`)
 ## Question 3
 pairwise_dist <- matrix(nrow=100, ncol=100)
 euclidean_dist <- function(x1, x2) {
@@ -104,8 +126,8 @@ dist <- matrix(nrow=100, ncol=100)
 euclidean_dist_mod <- function(x1, x2, n) {
   dsq = 0
   vars = n
-  for (i in 0:vars) {
-    dsq <- dsq + ((x1[(2^i)] - x2[(2^i)])^2)
+  for (i in 1:vars) {
+    dsq <- dsq + ((x1[i] - x2[i])^2)
   }
   return (sqrt(dsq))
 }
@@ -115,7 +137,7 @@ for (vars in 1:10) {
     x1 <- m1[i, ]
     for (j in 1:100) {
       x2 <- m1[j, ]
-      dist[i, j] <- euclidean_dist_mod(x1, x2, (vars-1))
+      dist[i, j] <- euclidean_dist_mod(x1, x2, 2^(vars-1))
     }
   }
   euc_vec <- dist[lower.tri(dist)]
@@ -127,9 +149,19 @@ for (vars in 1:10) {
 hist(table[1,], breaks=20)
 
 ## Question 5
+# a
 rownames <- c("For", "Against")
 colnames <- c("Low", "Medium", "High")
 chitb <- matrix(c(213, 203, 182, 138, 110, 154), nrow=2, dimnames=list(rownames, colnames))
 chitb <- as.table(chitb)
 chisq <- chisq.test(chitb)
 chisq$p.value
+# b
+rownames1 <- c("poly", "fixed")
+colnames1 <- c("syn", "nonsyn")
+chitb1 <- matrix(c(43, 17, 5, 7), nrow=2, dimnames=list(rownames1, colnames1))
+chitb1 <- as.table(chitb1)
+chisq1 <- chisq.test(chitb1)
+chisq1$p.value
+fisher1 <- fisher.test(chitb1)
+fisher1$p.value
