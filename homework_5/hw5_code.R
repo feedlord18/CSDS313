@@ -23,11 +23,11 @@ for (row in 1:100) {
 }
 
 ## a (feature filtering)
-coefs = matrix(nrow=1001, ncol=2)
+coefs = matrix(nrow=1000, ncol=2)
 for (var in 1:1000) {
   temp_x = m[, var]
   coefs[var, 1] = var
-  coefs[var, 2] = cor.test(temp_x, m[, 1002])$p.value
+  coefs[var, 2] = abs(cor.test(temp_x, m[, 1002])$estimate)
 }
 top_coef = coefs[order(coefs[, 2], decreasing=TRUE), ]
 top_coef = top_coef[c(1:10),]
@@ -42,7 +42,7 @@ for (idx in 1:10) {
 varIdx = append(idxs, 1002, after = 10)
 dataset = as.data.frame(m[, varIdx])
 model = lm(V11 ~ V1 + V2 + V3 + V4 + V5 + V6 + V7 + V8 + V9 + V10, data = dataset)
-summary(model)$coefficient
+summary(model)
 
 ## c (LASSO regression)
 x = data.matrix(dataset[, c('V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10')])
@@ -165,7 +165,7 @@ f1 <- function(p, r) {
   }
   return(0)
 }
-metrics = matrix(nrow=100, ncol=4)
+metrics = matrix(nrow=100, ncol=2)
 for (loo in 1:100) {
   i = 1
   cpt = matrix(nrow=20, ncol=3)
@@ -232,11 +232,12 @@ for (loo in 1:100) {
   } else {
     pred = 0
   }
-  true = binM[loo, 1001]
-  metrics[loo, 1] = accuracy(pred, true)
-  metrics[loo, 2] = precision(pred, true)
-  metrics[loo, 3] = recall(pred, true)
-  metrics[loo, 4] = f1(metrics[loo, 2], metrics[loo, 3])
+  metrics[loo, 2] = binM[loo, 1001]
+  metrics[loo, 1] = pred
+  # metrics[loo, 1] = accuracy(pred, true)
+  # metrics[loo, 2] = precision(pred, true)
+  # metrics[loo, 3] = recall(pred, true)
+  # metrics[loo, 4] = f1(metrics[loo, 2], metrics[loo, 3])
 }
 #### plot
 data = data.frame(
@@ -388,3 +389,4 @@ plot(roc[, 1], roc[, 2], type = "l", xlab = "FPR", ylab = "TPR", main="ROC Cruve
 pr = pr_helper(preds, true)
 pr = pr[order(pr[, 1], decreasing=FALSE), ]
 plot(pr[, 1], pr[, 2], type = "l", xlab = "recall", ylab = "precision", main="Precision Recall Curve")
+
